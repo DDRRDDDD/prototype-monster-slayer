@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class FileManager {
 	private String fileName;
@@ -16,7 +19,7 @@ public class FileManager {
 		this.file = new File(this.fileName);
 	}
 	
-	private String[] load() {
+	public String[] load() {
 		if(!file.exists())
 			return null;
 		
@@ -38,6 +41,31 @@ public class FileManager {
 		String[] resultData = data.toArray(new String[data.size()]);
 		
 		return resultData;
+	}
+	
+	public void save(String processedData) {
+		try (FileWriter fw = new FileWriter(this.file)){
+			fw.write(processedData);
+		} catch (IOException e) {}
+	}
+	
+	public HashMap<Integer, User>  getInfoByUser() {
+		String[] tmp = load();
+		
+		if(tmp == null)
+			return null;
+		
+		HashMap<Integer, User> map = new HashMap<>();
+		for(int i = 0; i < tmp.length; i++) {
+			String[] splitData = tmp[i].split("\\p{Punct}");
+			
+			int hashKey = Objects.hash(splitData[2], splitData[3]);
+			User user = new User(splitData[2], splitData[3]);
+			user.setUserName(splitData[1]);
+			map.put(hashKey, user);
+		}
+		
+		return map;
 	}
 	
 	public int[][] getMap() {

@@ -64,8 +64,7 @@ public class Battle implements Combatable{
 			}
 		}	
 		
-		// 대사 추가 예정
-		Main.systemSpeak("조심하세요!");
+		// 대사 추가
 	}
 	
 	@Override
@@ -74,8 +73,6 @@ public class Battle implements Combatable{
 		this.turn += 1;
 		
 		if(this.enemyY != this.playerY) {
-			System.out.println(this.enemyY);
-			System.out.println(this.playerY);
 			Main.systemSpeak("아무일도 없었다..");
 			return;
 		}
@@ -94,7 +91,6 @@ public class Battle implements Combatable{
 		demage -= victimDef;
 		demage = demage < 1 ? 1 : demage;
 		victimHp -= demage;
-		//////////
 		
 		victim.setStatus(Unit.HP, victimHp);
 		
@@ -109,7 +105,7 @@ public class Battle implements Combatable{
 	}
 	
 	private boolean playerPlacement() {
-		String move = Main.scan.next();
+		String move = Main.systemRead();
 		int playerTmpY = this.playerY;
 		
 		if(move.equals("0")) return true;
@@ -148,7 +144,7 @@ public class Battle implements Combatable{
 		enemyTmpY +=  initialCoordinate;
 		
 		// 테스트용
-		enemyTmpY = 2;
+//		enemyTmpY = 2;
 		
 		int tmp = battleGround[enemyTmpY][this.enemyX];
 		battleGround[enemyTmpY][this.enemyX] = battleGround[this.enemyY][this.enemyX];
@@ -171,7 +167,7 @@ public class Battle implements Combatable{
 		}
 		if(player.getStatus(Unit.HP) < 1) {
 			Main.systemSpeak("당신은 전투에서 패배하였습니다");
-			Main.systemSpeak("G A M E   O V E R");
+			Main.printAscii(Main.GAME_OVER);
 			System.exit(0);
 		}
 		return false;

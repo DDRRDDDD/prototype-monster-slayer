@@ -1,20 +1,69 @@
 package ms;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.Random;
-import java.util.Scanner;
 
-public class Main {
+public class Main{
+	public static String[][] ASCII;
+	public static final int LOGO       = 0;
+	public static final int GAME_CLEAR = 1;
+	public static final int GAME_OVER  = 2;
 	
 	private static final Main local = new Main();
-	public static Scanner scan = new Scanner(System.in);
-	public static Random ran = new Random();
-	//딱히 스레드가 안쓰이면 빌더로 바꿀것
-	public static StringBuffer strBuff = new StringBuffer();
 	
-	private Main() {}
+	public static StringBuffer strBuffer;
+	private static BufferedReader reader;
+	private static BufferedWriter writer;
+	
+	public static Random ran = new Random();
+	
+	private Main() {
+		reader = new BufferedReader(new InputStreamReader(System.in));
+		writer = new BufferedWriter(new OutputStreamWriter(System.out));
+		strBuffer = new StringBuffer();
+		initAscii();
+	}
 	public static Main getInstance() {
 		return local;
+	}
+	private void initAscii() {
+		ASCII = new String[][]
+				{new FileManager("Logo.txt").load()
+				,new FileManager("GameClear.txt").load()
+				,new FileManager("GameOver.txt").load()};
+	}
+	
+	public static String systemRead() {
+		String value = "";
+		
+		try {value = reader.readLine();} 
+		catch (IOException e) {}
+
+		return value;
+	}
+	
+	public static int systemReadForInteger() {
+		int value = 0;
+		
+		try {
+			value = Integer.parseInt(reader.readLine());
+		} catch (NumberFormatException nfe) {
+			return systemReadForInteger();
+		}catch (IOException e) {e.printStackTrace();}
+		
+		return value;
+	}
+	
+	public static void systemWrite(String input) {
+		try {
+			writer.write("\n" + input);
+			writer.flush();			
+		} catch (IOException e) {e.printStackTrace();}
 	}
 	
 	// 유닛 별로 능력치의 출력포맷
@@ -33,19 +82,19 @@ public class Main {
 	
 	// getMsgFormat()의 포맷 양식
 	private static String statusMsgFormat() {
-		strBuff.setLength(0);
-		strBuff.append(" {0}\n");
-		strBuff.append("[HP : {2}/ {1}]\n");
-		strBuff.append("[MP : {4}/ {3}]\n");
-		strBuff.append("[ATT({5})/DEF({6})]\n");
-		return strBuff.toString();
+		strBuffer.setLength(0);
+		strBuffer.append(" {0}\n");
+		strBuffer.append("[HP : {2}/ {1}]\n");
+		strBuffer.append("[MP : {4}/ {3}]\n");
+		strBuffer.append("[ATT({5})/DEF({6})]\n");
+		return strBuffer.toString();
 	}
 	
 	public static String hitMsg(String attacker, int att) {
-		strBuff.setLength(0);
-		strBuff.append(attacker).append(" 이(가)");
-		strBuff.append(att).append("의 데미지로 공격!");
-		return strBuff.toString();
+		strBuffer.setLength(0);
+		strBuffer.append(attacker).append(" 이(가)");
+		strBuffer.append(att).append("의 데미지로 공격!");
+		return strBuffer.toString();
 	}
 	
 	// 돌려보면 앎 시스템 메세지
@@ -62,26 +111,27 @@ public class Main {
 			else
 				delayTime = 100;
 			
-			System.out.print(word);
+			systemWrite(word +"");
 			try {
 				Thread.sleep(delayTime);
 			} catch (Exception e) {}
 		}
-		System.out.println();
+		systemWrite("\n");
+	}
+	
+	public static void printAscii(int title) {
+		String[] str = ASCII[title];
+		for(String logo : str) {
+			System.out.println(logo);
+			try {
+				Thread.sleep(200);
+			} catch (Exception e) {}
+		}
 	}
 	
 	public static void main(String[] args) {
+		printAscii(LOGO);
 		GameRunner act = new GameRunner();
-		Main.systemSpeak("뭔가 게임 시작하기 전에 시스템 메세지로 말하는게 좀 있어 보여서");
-		Main.systemSpeak("솔직히 대본은 없고 그래도 이렇게 하면 정말 게임 플레이 전 인트로로는");
-		Main.systemSpeak("딱인거 같아요");
-		Main.systemSpeak("게임의 기본적인 조작은 w a s d로 진행이 되고");
-		Main.systemSpeak("상호작용 키는 0으로 고정입니다");
-		Main.systemSpeak("네 스토리는 마왕한테 납치당한 공주를 구하러 가는거구요");
-		Main.systemSpeak("그러면 게임 시작합니다");
-		Main.systemSpeak("GAME START!");
-		Main.systemSpeak(" ");
-		Main.systemSpeak("아무키나 눌러주세요");
 		act.run();
 	}
 }

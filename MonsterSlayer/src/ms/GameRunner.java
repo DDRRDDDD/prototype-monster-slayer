@@ -5,17 +5,20 @@ import java.util.ArrayList;
 public class GameRunner{
 	private Map map;
 	private Player player;
+	private UserManager userManager;
 
 	public static ArrayList<Movable> enemyList = new ArrayList<>();
 	public GameRunner() {
+		this.userManager = new UserManager();
 		this.map = new Map();
 		this.map.loadMapByFloor(1);
 		this.map.addEnemyToEnemyList();
 		this.player = this.map.initPlayerCoordinate();
+		
 	}
 
 	private void move() {
-		String direction = Main.scan.next();
+		String direction = Main.systemRead();
 
 		int tmpY = player.getY();
 		int tmpX = player.getX();
@@ -103,8 +106,10 @@ public class GameRunner{
 			if(battle.fightDone())
 				break;
 		}
-		if(enemy instanceof Boss)
-			Main.systemSpeak("드디어 칠봉산의 평화가 찾아 왔다");
+		if(enemy instanceof Boss) {
+			Main.printAscii(Main.GAME_CLEAR);
+			System.exit(0);
+		}
 			
 		else
 			removeUnitList(battle.getDeadEnemyCoordinate());
@@ -139,15 +144,44 @@ public class GameRunner{
 				enemyList.remove(i);
 		}
 	}
+	
+	private void userInterface() {
+		do {
+			Main.systemWrite("1. 회원가입");
+			Main.systemWrite("2. 회원탈퇴");
+			Main.systemWrite("3. 로그인");
+			Main.systemWrite("4. 로그아웃");
+			Main.systemWrite("0. 시작하기");					
+		}while(userInterfaceMenuSel());
+	}
+	
+	private boolean userInterfaceMenuSel() {
+		
+		int sel = Main.systemReadForInteger();
+		if(sel == 0) {
+			if(userManager.isLogging(false)) {
+				String name = userManager.getName();
+				Main.systemSpeak(name + "님 환영합니다 곧 게임을 시작합니다");
+				userManager.saveUserInfoData();
+				return false;
+			}
+		}
+		
+		else if(sel == UserManager.USER_SIGN_UP) userManager.userSignUp();
+		else if(sel == UserManager.USER_DROP)    userManager.userDrop();
+		else if(sel == UserManager.LOG_IN)       userManager.logIn();
+		else if(sel == UserManager.LOG_OUT)      userManager.logOut();
+		return true;
+	}
 
 	public void run(){
+		userInterface();
 		while(true) {
 			printMap();
 			move();
 			enemyRandomMove();
 			initList();
 		}
-
 	}
 
 	private void printMap() {
